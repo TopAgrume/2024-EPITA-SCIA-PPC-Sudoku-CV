@@ -1,22 +1,48 @@
+using Sudoku.Shared;
+
 namespace Sudoku.GraphColoring;
 
 public class SudokuGraph
 {
-    private const int SudokuGridSquareLength = 3;
-    private const int SudokuGridLength = SudokuGraph.SudokuGridSquareLength * SudokuGraph.SudokuGridSquareLength;
-    private const int SudokuGridSize = SudokuGraph.SudokuGridLength * SudokuGraph.SudokuGridLength;
+    public static readonly int Blank = 0;
+
+    public int GridSize { get; }
+    public int GridLength { get; }
+    private readonly int _gridSquareLength;
 
     private readonly UndirectedGraph _graph;
+    private readonly int[] _colors;
 
-    public SudokuGraph()
+    public SudokuGraph(SudokuGrid grid)
     {
-        this._graph = new UndirectedGraph(SudokuGridSize);
+        this.GridSize = grid.Cells.Length;
+        this.GridLength = (int) Math.Sqrt(this.GridSize);
+        this._gridSquareLength = (int) Math.Sqrt(this.GridLength);
+
+        this._graph = new UndirectedGraph(this.GridSize);
+        this._colors = new int[this._graph.VertexCount];
+
         this.InitializeEdges();
+        this.InitializeColors(grid.Cells);
     }
 
-    private static int ToVertex(int row, int column)
+    public int this[int vertex]
     {
-        return row * SudokuGraph.SudokuGridLength + column;
+        get => this._colors[vertex];
+        set => this._colors[vertex] = value;
+    }
+
+    public int? First(int target)
+    {
+        for (int vertex = 0; vertex < this._graph.VertexCount; ++vertex)
+            if (this[vertex] == target)
+                return vertex;
+        return null;
+    }
+
+    public IEnumerable<int> Neighbors(int source)
+    {
+        return this._graph.Neighbors(source);
     }
 
     public void Dump(string path)
@@ -30,6 +56,15 @@ public class SudokuGraph
         }
     }
 
+    public SudokuGrid ToGrid()
+    {
+        var grid = new SudokuGrid();
+        for (int row = 0; row < this.GridLength; ++row)
+            for (int column = 0; column < this.GridLength; ++column)
+                grid.Cells[row, column] = this[this.ToVertex(row, column)];
+        return grid;
+    }
+
     private void InitializeEdges()
     {
         foreach (var (source, destination) in this._graph.VertexPairs())
@@ -37,15 +72,22 @@ public class SudokuGraph
                 this._graph.AddEdge(source, destination);
     }
 
+    private void InitializeColors(int[,] cells)
+    {
+        for (int row = 0; row < this.GridLength; ++row)
+            for (int column = 0; column < this.GridLength; ++column)
+                this._colors[this.ToVertex(row, column)] = cells[row, column];
+    }
+
     private bool ShouldConnect(int source, int destination)
     {
-        int sourceRow = source / SudokuGraph.SudokuGridLength;
-        int sourceColumn = source % SudokuGraph.SudokuGridLength;
-        var sourceSquare = (sourceRow / SudokuGraph.SudokuGridSquareLength, sourceColumn / SudokuGraph.SudokuGridSquareLength);
+        int sourceRow = source / this.GridLength;
+        int sourceColumn = source % this.GridLength;
+        var sourceSquare = (sourceRow / this._gridSquareLength, sourceColumn / this._gridSquareLength);
 
-        int destinationRow = destination / SudokuGraph.SudokuGridLength;
-        int destinationColumn = destination % SudokuGraph.SudokuGridLength;
-        var destinationSquare = (destinationRow / SudokuGraph.SudokuGridSquareLength, destinationColumn / SudokuGraph.SudokuGridSquareLength);
+        int destinationRow = destination / this.GridLength;
+        int destinationColumn = destination % this.GridLength;
+        var destinationSquare = (destinationRow / this._gridSquareLength, destinationColumn / this._gridSquareLength);
 
         bool sameRow = (sourceRow == destinationRow);
         bool sameColumn = (sourceColumn == destinationColumn);
@@ -56,8 +98,8 @@ public class SudokuGraph
 
     private void DumpPositions(TextWriter writer)
     {
-        for (int row = 0; row < SudokuGraph.SudokuGridLength; ++row)
-            for (int column = 0; column < SudokuGraph.SudokuGridLength; ++column)
+        for (int row = 0; row < this.GridLength; ++row)
+            for (int column = 0; column < this.GridLength; ++column)
                 this.DumpPosition(writer, row, column);
     }
 
@@ -69,7 +111,12 @@ public class SudokuGraph
 
     private void DumpPosition(TextWriter writer, int row, int column)
     {
-        int vertex = SudokuGraph.ToVertex(row, column);
-        writer.WriteLine($"\t{vertex} [pos=\"{column},{SudokuGraph.SudokuGridLength - row - 1}!\"]");
+        int vertex = this.ToVertex(row, column);
+        writer.WriteLine($"\t{vertex} [pos=\"{column},{this.GridLength - row - 1}!\"]");
+    }
+
+    private int ToVertex(int row, int column)
+    {
+        return row * this.GridLength + column;
     }
 }

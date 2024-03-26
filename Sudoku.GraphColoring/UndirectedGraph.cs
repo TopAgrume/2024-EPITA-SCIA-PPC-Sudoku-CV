@@ -12,6 +12,17 @@ public class UndirectedGraph
         this._adjacencyMatrix = new bool[vertexCount, vertexCount];
     }
 
+    public IEnumerable<int> Neighbors(int source)
+    {
+        foreach (var edge in this.Edges())
+        {
+            if (edge.Item1 == source)
+                yield return edge.Item2;
+            else if (edge.Item2 == source)
+                yield return edge.Item1;
+        }
+    }
+
     public void AddEdge(int source, int destination)
     {
         this._adjacencyMatrix[source, destination] = true;
