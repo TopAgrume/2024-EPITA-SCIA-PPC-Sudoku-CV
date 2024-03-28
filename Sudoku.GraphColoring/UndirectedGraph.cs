@@ -14,7 +14,7 @@ public class UndirectedGraph
 
     public IEnumerable<int> Neighbors(int source)
     {
-        foreach (var edge in this.Edges())
+        foreach (var edge in this.Edges(source))
         {
             if (edge.Item1 == source)
                 yield return edge.Item2;
@@ -39,6 +39,17 @@ public class UndirectedGraph
         foreach (var (source, destination) in this.VertexPairs())
             if (this.HasEdge(source, destination))
                 yield return (source, destination);
+    }
+
+    public IEnumerable<(int, int)> Edges(int source)
+    {
+        for (int destination = 0; destination < this.VertexCount; ++destination)
+        {
+            if (destination == source)
+                continue;
+            if (this.HasEdge(source, destination))
+                yield return (Math.Min(source, destination), Math.Max(source, destination));
+        }
     }
 
     public IEnumerable<(int, int)> VertexPairs()
