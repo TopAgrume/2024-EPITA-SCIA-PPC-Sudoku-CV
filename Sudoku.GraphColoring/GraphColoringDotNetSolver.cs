@@ -8,7 +8,7 @@ public class GraphColoringDotNetSolver : ISudokuSolver
     public SudokuGrid Solve(SudokuGrid grid)
     {
         var graph = new SudokuGraph(grid);
-        ISudokuGraphSolver solver = new GreedySolver();
+        ISudokuGraphSolver solver = new DsaturSolver();
         solver.Solve(graph);
         return graph.ToGrid();
     }

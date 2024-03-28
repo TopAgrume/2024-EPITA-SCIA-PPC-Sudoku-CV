@@ -11,6 +11,7 @@ public class SudokuGraph
     private readonly int _gridSquareLength;
 
     private readonly UndirectedGraph _graph;
+
     private readonly int[] _colors;
 
     public SudokuGraph(SudokuGrid grid)
@@ -38,6 +39,20 @@ public class SudokuGraph
             if (this[vertex] == target)
                 return vertex;
         return null;
+    }
+
+    public IEnumerable<int> AvailableColors(int source)
+    {
+        var colors = Enumerable.Range(1, this.GridLength);
+        return colors.Except(this.UnavailableColors(source));
+    }
+
+    public IEnumerable<int> UnavailableColors(int source)
+    {
+        return this.Neighbors(source)
+            .Select(vertex => this[vertex])
+            .Where(color => color != SudokuGraph.Blank)
+            .Distinct();
     }
 
     public IEnumerable<int> Neighbors(int source)

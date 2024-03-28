@@ -12,8 +12,7 @@ public class GreedySolver : ISudokuGraphSolver
 
     private static bool SolveRecursive(SudokuGraph graph, int source)
     {
-        var neighbors = graph.Neighbors(source);
-        foreach (var color in GreedySolver.AvailableColors(graph, neighbors))
+        foreach (var color in graph.AvailableColors(source))
         {
             graph[source] = color;
             var next = graph.First(SudokuGraph.Blank);
@@ -22,12 +21,5 @@ public class GreedySolver : ISudokuGraphSolver
         }
         graph[source] = SudokuGraph.Blank;
         return false;
-    }
-
-    private static IEnumerable<int> AvailableColors(SudokuGraph graph, IEnumerable<int> vertices)
-    {
-        var colors = Enumerable.Range(1, graph.GridLength);
-        var colorsUsed = vertices.Select(vertex => graph[vertex]);
-        return colors.Except(colorsUsed);
     }
 }
