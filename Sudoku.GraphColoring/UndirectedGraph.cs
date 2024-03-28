@@ -4,58 +4,31 @@ public class UndirectedGraph
 {
     public int VertexCount { get;  }
 
-    private readonly bool[,] _adjacencyMatrix;
+    private readonly List<int>[] _adjacencyLists;
 
     public UndirectedGraph(int vertexCount)
     {
         this.VertexCount = vertexCount;
-        this._adjacencyMatrix = new bool[vertexCount, vertexCount];
-    }
-
-    public IEnumerable<int> Neighbors(int source)
-    {
-        foreach (var edge in this.Edges(source))
-        {
-            if (edge.Item1 == source)
-                yield return edge.Item2;
-            else if (edge.Item2 == source)
-                yield return edge.Item1;
-        }
-    }
-
-    public void AddEdge(int source, int destination)
-    {
-        this._adjacencyMatrix[source, destination] = true;
-        this._adjacencyMatrix[destination, source] = true;
-    }
-
-    public bool HasEdge(int source, int destination)
-    {
-        return this._adjacencyMatrix[source, destination];
+        this._adjacencyLists = new List<int>[vertexCount];
+        for (int vertex = 0; vertex < vertexCount; ++vertex)
+            this._adjacencyLists[vertex] = [];
     }
 
     public IEnumerable<(int, int)> Edges()
     {
-        foreach (var (source, destination) in this.VertexPairs())
-            if (this.HasEdge(source, destination))
-                yield return (source, destination);
-    }
-
-    public IEnumerable<(int, int)> Edges(int source)
-    {
-        for (int destination = 0; destination < this.VertexCount; ++destination)
-        {
-            if (destination == source)
-                continue;
-            if (this.HasEdge(source, destination))
+        for (int source = 0; source < this.VertexCount; ++source)
+            foreach (var destination in this.Neighbors(source))
                 yield return (Math.Min(source, destination), Math.Max(source, destination));
-        }
     }
 
-    public IEnumerable<(int, int)> VertexPairs()
+    public ReadOnlyCollection<int> Neighbors(int source)
     {
-        for (int source = 0; source < this.VertexCount - 1; ++source)
-            for (int destination = source + 1; destination < this.VertexCount; ++destination)
-                yield return (source, destination);
+        return this._adjacencyLists[source].AsReadOnly();
+    }
+
+    public void AddEdge(int source, int destination)
+    {
+        this._adjacencyLists[source].Add(destination);
+        this._adjacencyLists[destination].Add(source);
     }
 }

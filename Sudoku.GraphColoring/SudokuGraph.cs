@@ -67,9 +67,10 @@ public class SudokuGraph
 
     private void InitializeEdges()
     {
-        foreach (var (source, destination) in this._graph.VertexPairs())
-            if (this.ShouldConnect(source, destination))
-                this._graph.AddEdge(source, destination);
+        for (int source = 0; source < this._graph.VertexCount - 1; ++source)
+            for (int destination = source + 1; destination < this._graph.VertexCount; ++destination)
+                if (this.ShouldConnect(source, destination))
+                    this._graph.AddEdge(source, destination);
     }
 
     private void InitializeColors(int[,] cells)
