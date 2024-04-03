@@ -55,6 +55,11 @@ public class SudokuGraph
             .Distinct();
     }
 
+    public int Degree(int source)
+    {
+        return this._graph.Degree(source);
+    }
+
     public IEnumerable<int> Neighbors(int source)
     {
         return this._graph.Neighbors(source);
@@ -82,10 +87,8 @@ public class SudokuGraph
 
     private void InitializeEdges()
     {
-        for (int source = 0; source < this._graph.VertexCount - 1; ++source)
-            for (int destination = source + 1; destination < this._graph.VertexCount; ++destination)
-                if (this.ShouldConnect(source, destination))
-                    this._graph.AddEdge(source, destination);
+        this.InitializeEdgesBase();
+        this.InitializeEdgesHints();
     }
 
     private void InitializeColors(int[,] cells)
@@ -110,6 +113,39 @@ public class SudokuGraph
         bool sameSquare = (sourceSquare == destinationSquare);
 
         return sameRow || sameColumn || sameSquare;
+    }
+
+    private void InitializeEdgesBase()
+    {
+        for (int source = 0; source < this._graph.VertexCount - 1; ++source)
+            for (int destination = source + 1; destination < this._graph.VertexCount; ++destination)
+                if (this.ShouldConnect(source, destination))
+                    this._graph.AddEdge(source, destination);
+    }
+
+    private void InitializeEdgesHints()
+    {
+        var hints = new HashSet<int>[this.GridLength];
+        for (int color = 0; color < hints.Length; ++color)
+            hints[color] = new HashSet<int>();
+        for (int vertex = 0; vertex < this.GridSize; ++vertex)
+        {
+            var color = this[vertex];
+            if (color != SudokuGraph.Blank)
+                hints[color].Add(vertex);
+        }
+        for (int color = 0; color < hints.Length; ++color)
+        {
+            for (int source = 0; source < hints[color].Count; ++source)
+            {
+                for (int destination = 0; destination < hints[color].Count; ++destination)
+                {
+                    if (source == destination)
+                        continue;
+                    this._graph.ConnectNeighbors(source, destination);
+                }
+            }
+        }
     }
 
     private void DumpPositions(TextWriter writer)

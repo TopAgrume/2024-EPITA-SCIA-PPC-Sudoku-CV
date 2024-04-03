@@ -26,16 +26,26 @@ public class DsaturSolver : ISudokuGraphSolver
 
     private static int? BlankMaxSaturation(SudokuGraph graph)
     {
-        try
+        int? max = null;
+        int maxSaturation = 0;
+        int maxDegree = 0;
+        for (int vertex = 0; vertex < graph.GridSize; ++vertex)
         {
-            return Enumerable.Range(0, graph.GridSize)
-                .Where(vertex => graph[vertex] == SudokuGraph.Blank)
-                .MaxBy(vertex => DsaturSolver.Saturation(graph, vertex));
+            var color = graph[vertex];
+            if (color != SudokuGraph.Blank)
+                continue;
+            int saturation = DsaturSolver.Saturation(graph, vertex);
+            int degree = graph.Degree(vertex);
+            bool unset = !max.HasValue;
+            bool greaterSaturation = (saturation > maxSaturation);
+            bool greaterDegree = (saturation == maxSaturation && degree > maxDegree);
+            if (unset || greaterSaturation || greaterDegree)
+            {
+                max = vertex;
+                maxSaturation = saturation;
+            }
         }
-        catch (InvalidOperationException) // Empty sequence
-        {
-            return null;
-        }
+        return max;
     }
 
     private static int Saturation(SudokuGraph graph, int source)
