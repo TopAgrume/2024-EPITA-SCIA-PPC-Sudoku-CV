@@ -115,7 +115,6 @@ def ff(s):
 
 path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_epoch_3.pth"
 model = SudokuSolver()
-model.load_state_dict(torch.load(path))
-model = model.to('cpu')
+model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 result = ff(model(torch.tensor(one_hot_encode(instance.flatten()).unsqueeze(0), device='cpu')).numpy()).reshape(9,9)
 print(result)
