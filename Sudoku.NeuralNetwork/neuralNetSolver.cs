@@ -30,7 +30,7 @@ public class NeuralNetSolver : PythonSolverBase
 
             // run the Python script
             string code = Resources1.main_py;
-            Console.WriteLine(code);
+            //Console.WriteLine(code);
             //Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             scope.Exec(code);
 
@@ -39,7 +39,7 @@ public class NeuralNetSolver : PythonSolverBase
             // Convertissez le résultat NumPy en tableau .NET
             var managedResult = AsManagedArray(scope, result);
 
-            Console.WriteLine(result);
+            // Console.WriteLine(result);
 
             return new SudokuGrid() { Cells = managedResult };
         }
