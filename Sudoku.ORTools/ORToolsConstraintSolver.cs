@@ -91,7 +91,6 @@ namespace Sudoku.ORTools
             }
         }
 
-
         private static string BuildSolvedString(IntVar[,] x, int gridSize)
         {
             StringBuilder sb = new StringBuilder();
