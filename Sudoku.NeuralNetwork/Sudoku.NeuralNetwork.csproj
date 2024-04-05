@@ -10,4 +10,18 @@
       <ProjectReference Include="..\Sudoku.Shared\Sudoku.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Update="script.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>script.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="script.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>script.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 </Project>

@@ -1,14 +1,18 @@
-from loguru import logger
-from train import train
+# from loguru import logger
 
+import numpy as np
 
-def test(message):
-    s = "let's go" + message
-    return s
+if 'instance' not in locals():
+    instance = np.array([
+        [0,0,0,0,9,4,0,3,0],
+        [0,0,0,5,1,0,0,0,7],
+        [0,8,9,0,0,0,0,4,0],
+        [0,0,0,0,0,0,2,0,8],
+        [0,6,0,2,0,1,0,5,0],
+        [1,0,2,0,0,0,0,0,0],
+        [0,7,0,0,0,0,5,2,0],
+        [9,0,0,0,6,5,0,0,0],
+        [0,4,0,9,7,0,0,0,0]
+    ], dtype=int)
 
-
-if __name__ == '__main__':
-    logger.debug("start main")
-    print("alors peut etre")
-    train(r'D:\epita\ubuntu\SCIA-1\programmationParContrainte\datasets_sudoku\sudoku.csv')
-    print("ouioui")
+result = instance
