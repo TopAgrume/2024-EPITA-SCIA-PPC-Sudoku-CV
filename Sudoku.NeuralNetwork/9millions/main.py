@@ -50,11 +50,14 @@ class SudokuSolver(nn.Module):
 
     # x is a (batch, n^2, n) tensor
     def forward(self, x, return_orig=False):
+        #logger.debug(f"x shape {x.shape}")
         n = self.n
         bts = x.shape[0]
         c = self.constraint_mask
         min_empty = (x.sum(dim=2) == 0).sum(dim=1).max()
         x_pred = x.clone()
+        #logger.debug(f"min empty {min_empty}")
+
         for a in range(min_empty):
             # score empty numbers
             #print(x.view(bts, 1, 1, n * n, n).size(), x.unsqueeze(1).unsqueeze(1).size())
@@ -79,7 +82,7 @@ class SudokuSolver(nn.Module):
             # fill it in
             nz = empty_mask.sum(dim=1).nonzero().view(-1)
             mmax_ = mmax[nz]
-            ones = torch.ones(nz.shape[0]).cuda()
+            ones = torch.ones(nz.shape[0])
             x.index_put_((nz, mmax_, score_pos[nz, mmax_]), ones)
         if return_orig:
             return x
@@ -101,9 +104,18 @@ if 'instance' not in locals():
     ], dtype=int)
 
 
+def one_hot_encode(s):
+    zeros = torch.zeros((81, 9), dtype=torch.float)
+    for a in range(81):
+        zeros[a, int(s[a]) - 1] = 1 if int(s[a]) > 0 else 0
+    return zeros
 
+def ff(s):
+    return np.argmax(s , axis = 2) + 1
 
-path = "D:\epita\ubuntu\SCIA-1\programmationParContrainte\model_epoch_3.pth"
+path = r"9millions\model_save\model_epoch_3.pth"
 model = SudokuSolver()
 model.load_state_dict(torch.load(path))
-result = model(instance)
+model = model.to('cpu')
+result = ff(model(torch.tensor(one_hot_encode(instance.flatten()).unsqueeze(0), device='cpu')).numpy()).reshape(9,9)
+print(result)

@@ -21,24 +21,36 @@ public class NeuralNetSolver : PythonSolverBase
             var pyCells = AsNumpyArray(s.Cells, scope);
 
             // create a Python variable "instance"
+            //scope.Import("torch");
+            //scope.Import("torch.nn", asname: "nn");
+            //scope.Import
+            //scope.Exec("%pip install -r requirements.txt");
             scope.Set("instance", pyCells);
 
             // run the Python script
             string code = Resources1.main_py;
+            Console.WriteLine(code);
             scope.Exec(code);
 
             PyObject result = scope.Get("result");
 
             // Convertissez le résultat NumPy en tableau .NET
             var managedResult = AsManagedArray(scope, result);
-            
+
             Console.WriteLine(result);
-            
+
             return new SudokuGrid() { Cells = managedResult };
         }
 
         return s;
     }
-    
-   
+
+    protected override void InitializePythonComponents()
+    {
+        InstallPipModule("numpy");
+        InstallPipModule("torch");
+        
+        base.InitializePythonComponents();
+    }
+
 }

@@ -60,25 +60,28 @@ namespace Sudoku.NeuralNetwork {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # from loguru import logger
-        ///
+        ///   Looks up a localized string similar to import torch
+        ///import torch.nn as nn
         ///import numpy as np
         ///
-        ///if &apos;instance&apos; not in locals():
-        ///    instance = np.array([
-        ///        [0,0,0,0,9,4,0,3,0],
-        ///        [0,0,0,5,1,0,0,0,7],
-        ///        [0,8,9,0,0,0,0,4,0],
-        ///        [0,0,0,0,0,0,2,0,8],
-        ///        [0,6,0,2,0,1,0,5,0],
-        ///        [1,0,2,0,0,0,0,0,0],
-        ///        [0,7,0,0,0,0,5,2,0],
-        ///        [9,0,0,0,6,5,0,0,0],
-        ///        [0,4,0,9,7,0,0,0,0]
-        ///    ], dtype=int)
         ///
-        ///result = instance
-        ///.
+        ///def create_constraint_mask():
+        ///    constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
+        ///    # row constraints
+        ///    for a in range(81):
+        ///        r = 9 * (a // 9)
+        ///        for b in range(9):
+        ///            constraint_mask[a, 0, r + b] = 1
+        ///
+        ///    # column constraints
+        ///    for a in range(81):
+        ///        c = a % 9
+        ///        for b in range(9):
+        ///            constraint_mask[a, 1, c + 9 * b] = 1
+        ///
+        ///    # box constraints
+        ///    for a in range(81):
+        ///      [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string main_py {
             get {
