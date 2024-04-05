@@ -113,7 +113,7 @@ def one_hot_encode(s):
 def ff(s):
     return np.argmax(s , axis = 2) + 1
 
-path = r"..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_epoch_3.pth"
+path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_epoch_3.pth"
 model = SudokuSolver()
 model.load_state_dict(torch.load(path))
 model = model.to('cpu')
