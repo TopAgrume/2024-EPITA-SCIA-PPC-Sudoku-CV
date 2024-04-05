@@ -119,8 +119,8 @@ namespace Sudoku.CNN {
         ///   Recherche une chaîne localisée semblable à import copy
         ///import keras
         ///import numpy as np
-        ///from model import get_model
-        ///from scripts.data_processes import get_data
+        ///# from model import get_model
+        ///# from scripts.data_processes import get_data
         ///
         ///
         ///
@@ -144,7 +144,7 @@ namespace Sudoku.CNN {
         ///
         ///
         ///
-        ///def deno [le reste de la chaîne a été tronqué]&quot;;.
+        ///def  [le reste de la chaîne a été tronqué]&quot;;.
         /// </summary>
         internal static string Sudoku_py {
             get {
