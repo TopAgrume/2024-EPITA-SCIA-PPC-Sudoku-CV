@@ -1,6 +1,7 @@
 ﻿using Sudoku.Shared;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Python.Deployment;
@@ -30,6 +31,7 @@ public class NeuralNetSolver : PythonSolverBase
             // run the Python script
             string code = Resources1.main_py;
             Console.WriteLine(code);
+            Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             scope.Exec(code);
 
             PyObject result = scope.Get("result");
