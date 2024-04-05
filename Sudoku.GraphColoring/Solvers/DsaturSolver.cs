@@ -1,5 +1,8 @@
 namespace Sudoku.GraphColoring.Solvers;
 
+using Vertex = int;
+using Color = int;
+
 // https://fr.wikipedia.org/wiki/DSATUR
 public class DsaturSolver : ISudokuGraphSolver
 {
@@ -10,11 +13,11 @@ public class DsaturSolver : ISudokuGraphSolver
 
     private static bool SolveRecursive(SudokuGraph graph)
     {
-        var source = DsaturSolver.BlankMaxSaturation(graph);
+        Vertex? source = DsaturSolver.BlankMaxSaturation(graph);
         if (!source.HasValue)
             return true;
 
-        foreach (var color in graph.AvailableColors(source.Value)) {
+        foreach (Color color in graph.AvailableColors(source.Value)) {
             graph[source.Value] = color;
             if (DsaturSolver.SolveRecursive(graph))
                 return true;
@@ -24,14 +27,14 @@ public class DsaturSolver : ISudokuGraphSolver
         return false;
     }
 
-    private static int? BlankMaxSaturation(SudokuGraph graph)
+    private static Vertex? BlankMaxSaturation(SudokuGraph graph)
     {
-        int? max = null;
+        Vertex? max = null;
         int maxSaturation = 0;
         int maxDegree = 0;
-        for (int vertex = 0; vertex < graph.GridSize; ++vertex)
+        for (Vertex vertex = 0; vertex < graph.GridSize; ++vertex)
         {
-            var color = graph[vertex];
+            Color color = graph[vertex];
             if (color != SudokuGraph.Blank)
                 continue;
             int saturation = DsaturSolver.Saturation(graph, vertex);
@@ -48,7 +51,7 @@ public class DsaturSolver : ISudokuGraphSolver
         return max;
     }
 
-    private static int Saturation(SudokuGraph graph, int source)
+    private static int Saturation(SudokuGraph graph, Vertex source)
     {
         return graph.UnavailableColors(source).Count();
     }

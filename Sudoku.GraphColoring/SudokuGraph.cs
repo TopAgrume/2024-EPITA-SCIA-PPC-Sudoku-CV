@@ -2,9 +2,12 @@ using Sudoku.Shared;
 
 namespace Sudoku.GraphColoring;
 
+using Vertex = int;
+using Color = int;
+
 public class SudokuGraph
 {
-    public static readonly int Blank = 0;
+    public static readonly Color Blank = 0;
 
     public int GridSize { get; }
     public int GridLength { get; }
@@ -12,7 +15,7 @@ public class SudokuGraph
 
     private readonly UndirectedGraph _graph;
 
-    private readonly int[] _colors;
+    private readonly Color[] _colors;
 
     public SudokuGraph(SudokuGrid grid)
     {
@@ -21,33 +24,33 @@ public class SudokuGraph
         this._gridSquareLength = (int) Math.Sqrt(this.GridLength);
 
         this._graph = new UndirectedGraph(this.GridSize);
-        this._colors = new int[this._graph.VertexCount];
+        this._colors = new Color[this._graph.VertexCount];
 
         this.InitializeEdges();
         this.InitializeColors(grid.Cells);
     }
 
-    public int this[int vertex]
+    public Color this[Vertex vertex]
     {
         get => this._colors[vertex];
         set => this._colors[vertex] = value;
     }
 
-    public int? First(int target)
+    public Vertex? First(Vertex target)
     {
-        for (int vertex = 0; vertex < this._graph.VertexCount; ++vertex)
+        for (Vertex vertex = 0; vertex < this._graph.VertexCount; ++vertex)
             if (this[vertex] == target)
                 return vertex;
         return null;
     }
 
-    public IEnumerable<int> AvailableColors(int source)
+    public IEnumerable<Color> AvailableColors(Vertex source)
     {
         var colors = Enumerable.Range(1, this.GridLength);
         return colors.Except(this.UnavailableColors(source));
     }
 
-    public IEnumerable<int> UnavailableColors(int source)
+    public IEnumerable<Color> UnavailableColors(Vertex source)
     {
         return this.Neighbors(source)
             .Select(vertex => this[vertex])
@@ -55,12 +58,12 @@ public class SudokuGraph
             .Distinct();
     }
 
-    public int Degree(int source)
+    public int Degree(Vertex source)
     {
         return this._graph.Degree(source);
     }
 
-    public IEnumerable<int> Neighbors(int source)
+    public IEnumerable<Vertex> Neighbors(Vertex source)
     {
         return this._graph.Neighbors(source);
     }
@@ -98,7 +101,7 @@ public class SudokuGraph
                 this._colors[this.ToVertex(row, column)] = cells[row, column];
     }
 
-    private bool ShouldConnect(int source, int destination)
+    private bool ShouldConnect(Vertex source, Vertex destination)
     {
         int sourceRow = source / this.GridLength;
         int sourceColumn = source % this.GridLength;
@@ -117,28 +120,28 @@ public class SudokuGraph
 
     private void InitializeEdgesBase()
     {
-        for (int source = 0; source < this._graph.VertexCount - 1; ++source)
-            for (int destination = source + 1; destination < this._graph.VertexCount; ++destination)
+        for (Vertex source = 0; source < this._graph.VertexCount - 1; ++source)
+            for (Vertex destination = source + 1; destination < this._graph.VertexCount; ++destination)
                 if (this.ShouldConnect(source, destination))
                     this._graph.AddEdge(source, destination);
     }
 
     private void InitializeEdgesHints()
     {
-        var hints = new HashSet<int>[this.GridLength];
-        for (int color = 0; color < hints.Length; ++color)
-            hints[color] = new HashSet<int>();
-        for (int vertex = 0; vertex < this.GridSize; ++vertex)
+        var hints = new HashSet<Vertex>[this.GridLength];
+        for (Color color = 0; color < hints.Length; ++color)
+            hints[color] = new HashSet<Vertex>();
+        for (Vertex vertex = 0; vertex < this.GridSize; ++vertex)
         {
             var color = this[vertex];
             if (color != SudokuGraph.Blank)
                 hints[color].Add(vertex);
         }
-        for (int color = 0; color < hints.Length; ++color)
+        for (Color color = 0; color < hints.Length; ++color)
         {
-            for (int source = 0; source < hints[color].Count; ++source)
+            for (Vertex source = 0; source < hints[color].Count; ++source)
             {
-                for (int destination = 0; destination < hints[color].Count; ++destination)
+                for (Vertex destination = 0; destination < hints[color].Count; ++destination)
                 {
                     if (source == destination)
                         continue;
@@ -163,11 +166,11 @@ public class SudokuGraph
 
     private void DumpPosition(TextWriter writer, int row, int column)
     {
-        int vertex = this.ToVertex(row, column);
+        Vertex vertex = this.ToVertex(row, column);
         writer.WriteLine($"\t{vertex} [pos=\"{column},{this.GridLength - row - 1}!\"]");
     }
 
-    private int ToVertex(int row, int column)
+    private Vertex ToVertex(int row, int column)
     {
         return row * this.GridLength + column;
     }
