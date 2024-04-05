@@ -90,6 +90,7 @@ namespace Sudoku.ORTools
                 return SudokuGrid.ReadSudoku(solvedString);
             }
 
+            // If the Sudoku is unsolvable, throw an exception
             throw new Exception("Unfeasible Sudoku");
         }
     }
