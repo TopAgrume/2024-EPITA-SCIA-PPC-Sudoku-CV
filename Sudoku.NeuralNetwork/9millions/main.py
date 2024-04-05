@@ -1,6 +1,91 @@
-# from loguru import logger
-
+import torch
+import torch.nn as nn
 import numpy as np
+
+
+def create_constraint_mask():
+    constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
+    # row constraints
+    for a in range(81):
+        r = 9 * (a // 9)
+        for b in range(9):
+            constraint_mask[a, 0, r + b] = 1
+
+    # column constraints
+    for a in range(81):
+        c = a % 9
+        for b in range(9):
+            constraint_mask[a, 1, c + 9 * b] = 1
+
+    # box constraints
+    for a in range(81):
+        r = a // 9
+        c = a % 9
+        br = 3 * 9 * (r // 3)
+        bc = 3 * (c // 3)
+        for b in range(9):
+            r = b % 3
+            c = 9 * (b // 3)
+            constraint_mask[a, 2, br + bc + r + c] = 1
+
+    return constraint_mask
+
+class SudokuSolver(nn.Module):
+
+
+    def __init__(self, n=9, hidden1=128, bayesian=False):
+        super(SudokuSolver, self).__init__()
+        self.constraint_mask = create_constraint_mask().unsqueeze(-1).unsqueeze(0)
+        self.n = n
+        self.hidden1 = hidden1
+
+        # Feature vector is the 3 constraints
+        self.input_size = 3 * n
+        self.a1 = nn.ReLU()
+        self.l1 = nn.Linear(self.input_size,
+                            self.hidden1, bias=False)
+        self.l2 = nn.Linear(self.hidden1,
+                            n, bias=False)
+        self.softmax = nn.Softmax(dim=1)
+
+    # x is a (batch, n^2, n) tensor
+    def forward(self, x, return_orig=False):
+        n = self.n
+        bts = x.shape[0]
+        c = self.constraint_mask
+        min_empty = (x.sum(dim=2) == 0).sum(dim=1).max()
+        x_pred = x.clone()
+        for a in range(min_empty):
+            # score empty numbers
+            #print(x.view(bts, 1, 1, n * n, n).size(), x.unsqueeze(1).unsqueeze(1).size())
+            constraints = (x.unsqueeze(1).unsqueeze(1) * c).sum(dim=3)
+            # empty cells
+            empty_mask = (x.sum(dim=2) == 0)
+
+            f = constraints.reshape(bts, n * n, 3 * n)
+            y_ = self.l1(f[empty_mask])
+            y_ = self.l2(self.a1(y_))
+
+            s_ = self.softmax(y_)
+
+            # Score the rows
+            x_pred[empty_mask] = s_
+
+            s = torch.zeros_like(x_pred)
+            s[empty_mask] = s_
+            # find most probable guess
+            score, score_pos = s.max(dim=2)
+            mmax = score.max(dim=1)[1]
+            # fill it in
+            nz = empty_mask.sum(dim=1).nonzero().view(-1)
+            mmax_ = mmax[nz]
+            ones = torch.ones(nz.shape[0]).cuda()
+            x.index_put_((nz, mmax_, score_pos[nz, mmax_]), ones)
+        if return_orig:
+            return x
+        else:
+            return x_pred
+
 
 if 'instance' not in locals():
     instance = np.array([
@@ -15,4 +100,10 @@ if 'instance' not in locals():
         [0,4,0,9,7,0,0,0,0]
     ], dtype=int)
 
-result = instance
+
+
+
+path = "D:\epita\ubuntu\SCIA-1\programmationParContrainte\model_epoch_3.pth"
+model = SudokuSolver()
+model.load_state_dict(torch.load(path))
+result = model(instance)
