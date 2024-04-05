@@ -27,6 +27,33 @@ namespace Sudoku.ORTools
             // Create solver matrix with constraints for size and integers range
             IntVar[,] x = solver.MakeIntVarMatrix(gridSize, gridSize, 1, 9, "x");
 
+            // Add constraints
+            CreateConstraints(solver, grid, x, gridSize, regionSize);
+
+            // Define the decision builder to use for the solver
+            DecisionBuilder db = solver.MakePhase(x.Flatten(), Solver.INT_VAR_SIMPLE, Solver.INT_VALUE_SIMPLE);
+            // Alternative decision builder for experimentation
+            // solver.MakePhase(x.Flatten(), Solver.CHOOSE_FIRST_UNBOUND, Solver.ASSIGN_MIN_VALUE);
+            
+            // Start the search
+            solver.NewSearch(db);
+
+            // Iterate through solutions
+            while (solver.NextSolution())
+            {
+                // Build the solved Sudoku string
+                string solvedString = BuildSolvedString(x, gridSize);
+                solver.EndSearch();
+
+                return SudokuGrid.ReadSudoku(solvedString);
+            }
+
+            // If the Sudoku is unsolvable, throw an exception
+            throw new Exception("Unfeasible Sudoku");
+        }
+
+        private static void CreateConstraints(Solver solver, int[,] grid, IntVar[,] x, int gridSize, int regionSize)
+        {
             // Add constraints for pre-filled cells
             for (int i = 0; i < gridSize; i++)
             {
@@ -62,36 +89,20 @@ namespace Sudoku.ORTools
                     solver.Add(solver.MakeAllDifferent(regionVars));
                 }
             }
+        }
 
-            // Define the decision builder to use for the solver
-            DecisionBuilder db = solver.MakePhase(x.Flatten(), Solver.INT_VAR_SIMPLE, Solver.INT_VALUE_SIMPLE);
-            // Alternative decision builder for experimentation
-            // solver.MakePhase(x.Flatten(), Solver.CHOOSE_FIRST_UNBOUND, Solver.ASSIGN_MIN_VALUE);
-            
-            // Start the search
-            solver.NewSearch(db);
 
-            // Iterate through solutions
-            while (solver.NextSolution())
+        private static string BuildSolvedString(IntVar[,] x, int gridSize)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < gridSize; i++)
             {
-                // Build the solved Sudoku string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < gridSize; i++)
+                for (int j = 0; j < gridSize; j++)
                 {
-                    for (int j = 0; j < gridSize; j++)
-                    {
-                        sb.Append((int)x[i, j].Value());
-                    }
+                    sb.Append((int)x[i, j].Value());
                 }
-                string solvedString = sb.ToString();
-
-                solver.EndSearch();
-
-                return SudokuGrid.ReadSudoku(solvedString);
             }
-
-            // If the Sudoku is unsolvable, throw an exception
-            throw new Exception("Unfeasible Sudoku");
+            return sb.ToString();
         }
     }
 }
