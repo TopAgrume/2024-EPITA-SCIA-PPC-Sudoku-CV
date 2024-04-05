@@ -25,11 +25,10 @@ namespace Sudoku.CNN
 				scope.Set("instance", pyCells);
 
 				// run the Python script
-				string code =  Resources.Sudoku_py;
-
 				
+				var codes = new List<string> { Resources.data_processes, Resources.model, Resources.Sudoku_py };
 
-				scope.Exec(code);
+				codes.ForEach(code => scope.Exec(code));
 
 				PyObject result = scope.Get("result");
 
