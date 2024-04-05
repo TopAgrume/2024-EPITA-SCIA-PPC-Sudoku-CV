@@ -24,7 +24,8 @@ public class NeuralNetSolver : PythonSolverBase
             scope.Set("instance", pyCells);
 
             // run the Python script
-            string code = 9millions.main.py;
+            string code = Resources2.main_py;
+            Console.WriteLine(code);
             scope.Exec(code);
 
             PyObject result = scope.Get("result");

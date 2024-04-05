@@ -1,5 +1,5 @@
 print('hello world')
-
+"""
 import numpy as np
 
 if 'instance' not in locals():
@@ -16,3 +16,4 @@ if 'instance' not in locals():
     ], dtype=int)
 
 result = instance
+"""
