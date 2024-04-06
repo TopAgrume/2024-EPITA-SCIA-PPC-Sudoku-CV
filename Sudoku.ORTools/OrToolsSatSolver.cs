@@ -6,6 +6,10 @@ namespace Sudoku.ORTools
 {
 	public class ORToolsSatSolver : ISudokuSolver
 	{
+        // Init the sudoku data
+        private const int gridSize = 9;
+        private const int regionSize = 3;
+
 		/// <summary>
         /// Solves the given Sudoku grid using Constraint Programming (CP) -> SAT solver.
         /// </summary>
@@ -16,18 +20,17 @@ namespace Sudoku.ORTools
         /// <exception cref="Exception">Thrown when no feasible solution exists for the given Sudoku grid.</exception>
         public SudokuGrid Solve(SudokuGrid s)
         {
-            // Extract the initial grid and necessary constants.
+            // Extract the initial grid
             int[,] grid = s.Cells;
-            int gridSize = 9;
 
-            // Create a Constraint Programming Model instance.
+            // Create a Constraint Programming Model (SAT) instance.
             CpModel model = new CpModel();
 
             // Initialize variables
-            IntVar[,] x = InitVariables(model, grid, gridSize);
+            IntVar[,] matrix = InitVariables(model, grid);
 
             // Add constraints
-            CreateConstraints(model, x, gridSize);
+            CreateConstraints(model, matrix);
             
             // Create a solver instance and solve the model
             CpSolver solver = new CpSolver();
@@ -36,7 +39,7 @@ namespace Sudoku.ORTools
             // If the solution is optimal or feasible, build the solved Sudoku grid
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
-                string solvedString = BuildSolvedString(solver, x, gridSize);
+                string solvedString = BuildSolvedString(solver, matrix, gridSize);
                 return SudokuGrid.ReadSudoku(solvedString);
             }
 
@@ -44,10 +47,10 @@ namespace Sudoku.ORTools
             throw new Exception("Unfeasible Sudoku");
         }
 
-        private static IntVar[,] InitVariables(CpModel model, int[,] grid, int gridSize)
+        private static IntVar[,] InitVariables(CpModel model, int[,] grid)
         {
-            // Create solver matrix with constraints for size and integers range
-            IntVar[,] x = new IntVar[gridSize, gridSize];
+            // Create solver matrix with constraints for size
+            IntVar[,] matrix = new IntVar[gridSize, gridSize];
 
             // Iterate through the grid to create variables and constant constraints
             for (int i = 0; i < gridSize; i++)
@@ -56,28 +59,26 @@ namespace Sudoku.ORTools
                 {
                     if (grid[i, j] == 0)
                     {
-                        x[i, j] = model.NewIntVar(1, gridSize, $"x[{i},{j}]");
+                        matrix[i, j] = model.NewIntVar(1, gridSize, $"matrix[{i},{j}]");
                     }
                     else
                     {
-                        x[i, j] = model.NewConstant(grid[i, j]);
+                        matrix[i, j] = model.NewConstant(grid[i, j]);
                     }
                 }
             }
 
-            return x;
+            return matrix;
         }
 
-        private static void CreateConstraints(CpModel model, IntVar[,] x, int gridSize)
+        private static void CreateConstraints(CpModel model, IntVar[,] matrix)
         {
             // Add row and column constraints ensuring each number appears only once
             for (int i = 0; i < gridSize; i++)
             {
-                model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select x[i, j]).ToArray());
-                model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select x[j, i]).ToArray());
+                model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select matrix[i, j]).ToArray());
+                model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select matrix[j, i]).ToArray());
             }
-
-            int regionSize = 3;
 
             // Add region constraints ensuring each number appears only once in each sub-grid
             for (int row = 0; row < gridSize; row += regionSize)
@@ -86,7 +87,7 @@ namespace Sudoku.ORTools
                 {
                     var regionVars = Enumerable.Range(0, regionSize)
                                     .SelectMany(i => Enumerable.Range(0, regionSize)
-                                    .Select(j => x[row + i, col + j]))
+                                    .Select(j => matrix[row + i, col + j]))
                                     .ToArray();
 
                     model.AddAllDifferent(regionVars);
@@ -94,7 +95,10 @@ namespace Sudoku.ORTools
             }
         }
 
-        private static string BuildSolvedString(CpSolver solver, IntVar[,] x, int gridSize)
+        /// <summary>
+        /// Builds the Sudoku grid with the solved values.
+        /// </summary>
+        private static string BuildSolvedString(CpSolver solver, IntVar[,] matrix, int gridSize)
         {
             // Create String from solver value
             StringBuilder sb = new StringBuilder();
@@ -102,7 +106,7 @@ namespace Sudoku.ORTools
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    sb.Append((int)solver.Value(x[i, j]));
+                    sb.Append((int)solver.Value(matrix[i, j]));
                 }
             }
             return sb.ToString();
