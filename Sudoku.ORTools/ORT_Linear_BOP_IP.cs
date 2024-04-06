@@ -3,7 +3,7 @@ using Google.OrTools.LinearSolver;
 
 namespace Sudoku.ORTools
 {
-    public class ORT_Linear_BOP_IPearSolverBOPIP : ISudokuSolver
+    public class ORT_Linear_BOP_IP : ISudokuSolver
     {
         // Init the sudoku data
         private const int gridSize = 9;
