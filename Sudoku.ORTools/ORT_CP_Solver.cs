@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Sudoku.ORTools
 {
-    public class ORToolsConstraintSolver : ISudokuSolver
+    public class ORT_CP_Solver : ISudokuSolver
     {
         // Init the sudoku data
         private const int gridSize = 9;

@@ -1,9 +1,9 @@
-﻿using Sudoku.Shared;
+using Sudoku.Shared;
 using Google.OrTools.LinearSolver;
 
 namespace Sudoku.ORTools
 {
-    public class ORToolsLinearSolver : ISudokuSolver
+    public class ORT_Linear_CBC_MIP : ISudokuSolver
     {
         // Init the sudoku data
         private const int gridSize = 9;
