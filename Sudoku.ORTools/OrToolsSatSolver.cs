@@ -39,7 +39,7 @@ namespace Sudoku.ORTools
             // If the solution is optimal or feasible, build the solved Sudoku grid
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
-                string solvedString = BuildSolvedString(solver, matrix, gridSize);
+                string solvedString = BuildSolvedString(solver, matrix);
                 return SudokuGrid.ReadSudoku(solvedString);
             }
 
@@ -98,7 +98,7 @@ namespace Sudoku.ORTools
         /// <summary>
         /// Builds the Sudoku grid with the solved values.
         /// </summary>
-        private static string BuildSolvedString(CpSolver solver, IntVar[,] matrix, int gridSize)
+        private static string BuildSolvedString(CpSolver solver, IntVar[,] matrix)
         {
             // Create String from solver value
             StringBuilder sb = new StringBuilder();

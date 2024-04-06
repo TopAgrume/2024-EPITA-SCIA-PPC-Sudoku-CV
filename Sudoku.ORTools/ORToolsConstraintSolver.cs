@@ -41,7 +41,7 @@ namespace Sudoku.ORTools
             while (solver.NextSolution())
             {
                 // Build the solved Sudoku string
-                string solvedString = BuildSolvedString(matrix, gridSize);
+                string solvedString = BuildSolvedString(matrix);
                 solver.EndSearch();
 
                 return SudokuGrid.ReadSudoku(solvedString);
@@ -98,7 +98,7 @@ namespace Sudoku.ORTools
         /// <summary>
         /// Builds the Sudoku grid with the solved values.
         /// </summary>
-        private static string BuildSolvedString(IntVar[,] matrix, int gridSize)
+        private static string BuildSolvedString(IntVar[,] matrix)
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < gridSize; i++)
