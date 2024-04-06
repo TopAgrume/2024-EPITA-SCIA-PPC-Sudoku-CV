@@ -1,10 +1,9 @@
 using Sudoku.Shared;
 using Google.OrTools.Sat;
-using Google.OrTools.ModelBuilder;
 
 namespace Sudoku.OrTools
 {
-    public class ORToolsSatBoolean : ISudokuSolver
+    public class ORT_CPSAT_Boolean : ISudokuSolver
     {
         // Init the sudoku data
         private const int gridSize = 9;
