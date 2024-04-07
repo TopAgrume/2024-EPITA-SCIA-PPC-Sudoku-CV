@@ -43,8 +43,8 @@ namespace Sudoku.Benchmark
     {
         public QuickBenchmarkSolversEasy()
         {
-            MaxSolverDuration = TimeSpan.FromSeconds(20);
-            NbPuzzles = 2;
+            MaxSolverDuration = TimeSpan.FromSeconds(2);
+            NbPuzzles = 1;
         }
         private class Config : ManualConfig
         {
@@ -58,12 +58,14 @@ namespace Sudoku.Benchmark
                     .WithId("Solving Sudokus")
                     .WithPlatform(Platform.X64)
                     .WithJit(Jit.Default)
-                    .WithRuntime(CoreRuntime.Core70)
-                    //.WithLaunchCount(1)
-                    //.WithWarmupCount(1)
+                    .WithRuntime(CoreRuntime.Core80)
+                    .WithLaunchCount(1)
+                    .WithWarmupCount(1)
                     .WithIterationCount(1)
                     .WithInvocationCount(1)
-                    .WithToolchain(InProcessEmitToolchain.Instance)
+                    .WithUnrollFactor(1)
+					.WithToolchain(InProcessEmitToolchain.Instance)
+                    
 
                 );
 
@@ -97,12 +99,13 @@ namespace Sudoku.Benchmark
                     .WithId("Solving Sudokus")
                     .WithPlatform(Platform.X64)
                     .WithJit(Jit.RyuJit)
-                    .WithRuntime(CoreRuntime.Core70)
-                    //.WithLaunchCount(1)
-                    //.WithWarmupCount(1)
+                    .WithRuntime(CoreRuntime.Core80)
+                    .WithLaunchCount(1)
+                    .WithWarmupCount(1)
                     .WithIterationCount(3)
                     .WithInvocationCount(3)
-                    .WithToolchain(InProcessEmitToolchain.Instance)
+                    .WithUnrollFactor(1)
+					.WithToolchain(InProcessEmitToolchain.Instance)
 
                 );
 

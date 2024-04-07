@@ -127,8 +127,15 @@ namespace Sudoku.Benchmark
             {
                 case 1:
                     var tempEasy = new QuickBenchmarkSolversEasy();
-                    //BenchmarkRunner.Run<QuickBenchmarkSolvers>(new DebugInProcessConfig());
-                    BenchmarkRunner.Run<QuickBenchmarkSolversEasy>();
+
+                    if (IsDebug)
+                    {
+						BenchmarkRunner.Run<QuickBenchmarkSolversEasy>(new DebugInProcessConfig());
+					}
+                    else
+                    {
+						BenchmarkRunner.Run<QuickBenchmarkSolversEasy>();
+					}
                     break;
                 case 2:
                     //Init solvers
