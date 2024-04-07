@@ -7,6 +7,7 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Mathematics;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
@@ -23,7 +24,8 @@ namespace Sudoku.Benchmark
         public QuickBenchmarkSolversHard()
         {
             NbPuzzles = 10;
-            Difficulty = SudokuDifficulty.Hard;
+            MaxSolverDuration = TimeSpan.FromSeconds(30);
+			Difficulty = SudokuDifficulty.Hard;
         }
     }
 
@@ -33,7 +35,8 @@ namespace Sudoku.Benchmark
         public QuickBenchmarkSolversMedium()
         {
             NbPuzzles = 10;
-            Difficulty = SudokuDifficulty.Medium;
+            MaxSolverDuration = TimeSpan.FromSeconds(20);
+			Difficulty = SudokuDifficulty.Medium;
         }
     }
 
@@ -43,8 +46,8 @@ namespace Sudoku.Benchmark
     {
         public QuickBenchmarkSolversEasy()
         {
-            MaxSolverDuration = TimeSpan.FromSeconds(2);
-            NbPuzzles = 1;
+            MaxSolverDuration = TimeSpan.FromSeconds(10);
+            NbPuzzles = 2;
         }
         private class Config : ManualConfig
         {
@@ -53,6 +56,7 @@ namespace Sudoku.Benchmark
 #if DEBUG
                 Options |= ConfigOptions.DisableOptimizationsValidator;
 #endif
+	            this.AddColumnProvider(DefaultColumnProviders.Instance);
                 this.AddColumn(new RankColumn(NumeralSystem.Arabic));
                 AddJob(Job.Dry
                     .WithId("Solving Sudokus")
@@ -64,11 +68,12 @@ namespace Sudoku.Benchmark
                     .WithIterationCount(1)
                     .WithInvocationCount(1)
                     .WithUnrollFactor(1)
-					.WithToolchain(InProcessEmitToolchain.Instance)
+					//.WithToolchain(InProcessEmitToolchain.Instance)
                     
 
                 );
-
+                this.AddLogger(new ConsoleLogger(true));
+                this.UnionRule = ConfigUnionRule.AlwaysUseLocal;
 
             }
         }
@@ -84,7 +89,7 @@ namespace Sudoku.Benchmark
 
         public CompleteBenchmarkSolvers()
         {
-            MaxSolverDuration = TimeSpan.FromMinutes(5);
+            MaxSolverDuration = TimeSpan.FromMinutes(1);
         }
 
         private class Config : ManualConfig
@@ -94,23 +99,23 @@ namespace Sudoku.Benchmark
 #if DEBUG
                 Options |= ConfigOptions.DisableOptimizationsValidator;
 #endif
-                this.AddColumn(new RankColumn(NumeralSystem.Arabic));
-                AddJob(Job.Dry
+				this.AddColumnProvider(DefaultColumnProviders.Instance);
+				this.AddColumn(new RankColumn(NumeralSystem.Arabic));
+                this.AddJob(Job.Dry
                     .WithId("Solving Sudokus")
                     .WithPlatform(Platform.X64)
-                    .WithJit(Jit.RyuJit)
+                    .WithJit(Jit.Default)
                     .WithRuntime(CoreRuntime.Core80)
                     .WithLaunchCount(1)
                     .WithWarmupCount(1)
                     .WithIterationCount(3)
                     .WithInvocationCount(3)
                     .WithUnrollFactor(1)
-					.WithToolchain(InProcessEmitToolchain.Instance)
-
+					//.WithToolchain(InProcessEmitToolchain.Instance)
                 );
-
-
-            }
+                this.AddLogger(new ConsoleLogger(true));
+                this.UnionRule = ConfigUnionRule.AlwaysUseLocal;
+			}
         }
 
         [ParamsAllValues]
