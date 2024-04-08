@@ -119,7 +119,7 @@ namespace Sudoku.Benchmark
 
         private static void Benchmark()
         {
-            Console.WriteLine("Select Benchmark Type: \n1-Quick Benchmark (Easy, 2 Sudokus, 20s max per sudoku, Single invocation), \n2-Quick Benchmark (Medium, 10 Sudokus, 20s max per sudoku, Single invocation), \n3-Quick Benchmark (Hard, 10 Sudokus, 20s max per sudoku, Single invocation), \n4-Complete Benchmark (All difficulties, 5 mn max per sudoku, several invocations), \n5-Return");
+            Console.WriteLine("Select Benchmark Type: \n1-Quick Benchmark (Easy, 2 Sudokus, 10s max per sudoku, Single invocation), \n2-Quick Benchmark (Medium, 10 Sudokus, 20s max per sudoku, Single invocation), \n3-Quick Benchmark (Hard, 10 Sudokus, 30s max per sudoku, Single invocation), \n4-Complete Benchmark (All difficulties, 1 mn max per sudoku, several invocations), \n5-Return");
             var strMode = Console.ReadLine();
             int.TryParse(strMode, out var intMode);
             //Console.SetBufferSize(130, short.MaxValue - 100);
@@ -127,9 +127,17 @@ namespace Sudoku.Benchmark
             {
                 case 1:
                     var tempEasy = new QuickBenchmarkSolversEasy();
-                    //BenchmarkRunner.Run<QuickBenchmarkSolvers>(new DebugInProcessConfig());
-                    BenchmarkRunner.Run<QuickBenchmarkSolversEasy>();
-                    break;
+
+					//               if (IsDebug)
+					//               {
+					//	BenchmarkRunner.Run<QuickBenchmarkSolversEasy>(new DebugInProcessConfig());
+					//}
+					//               else
+					//               {
+					//	BenchmarkRunner.Run<QuickBenchmarkSolversEasy>();
+					//}
+					BenchmarkRunner.Run<QuickBenchmarkSolversEasy>();
+					break;
                 case 2:
                     //Init solvers
                     var tempMedium = new QuickBenchmarkSolversMedium();
