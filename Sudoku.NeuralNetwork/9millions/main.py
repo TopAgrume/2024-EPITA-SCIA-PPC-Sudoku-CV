@@ -105,10 +105,7 @@ if 'instance' not in locals():
 
 
 def one_hot_encode(s):
-    zeros = torch.zeros((81, 9), dtype=torch.float)
-    for a in range(81):
-        zeros[a, int(s[a]) - 1] = 1 if int(s[a]) > 0 else 0
-    return zeros
+    return np.eye(9)[s-1] * (s[:, None] > 0)
 
 def ff(s):
     return np.argmax(s , axis = 2) + 1
