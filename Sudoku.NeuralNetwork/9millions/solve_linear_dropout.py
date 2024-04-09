@@ -117,7 +117,7 @@ def ff(s):
     return np.argmax(s , axis = 2) + 1
 
 path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_final_drop.pth"
-model = SudokuSolver()
+model = SudokuSolver(create_constraint_mask())
 model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
 result = ff(model(torch.tensor(one_hot_encode(instance.flatten()).unsqueeze(0), device='cpu')).detach().numpy()).reshape(9,9)
 result = result.astype(np.int32)
