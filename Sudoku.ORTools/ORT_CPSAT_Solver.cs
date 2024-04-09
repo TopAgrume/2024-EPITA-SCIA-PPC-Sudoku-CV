@@ -1,46 +1,31 @@
 using Sudoku.Shared;
 using Google.OrTools.Sat;
-using System.Text;
 
 namespace Sudoku.ORTools
 {
-	public class ORT_CPSAT_Solver : ISudokuSolver
-	{
-        // Init the sudoku data
+    public class ORT_CPSAT_Solver : ISudokuSolver
+    {
         private const int gridSize = 9;
         private const int regionSize = 3;
 
-		/// <summary>
-        /// Solves the given Sudoku grid using Constraint Programming (CP) -> SAT solver.
-        /// </summary>
-        /// <param name="s">The Sudoku grid to be solved.</param>
-        /// <returns>
-        /// The solved Sudoku grid if a solution is found.
-        /// </returns>
-        /// <exception cref="Exception">Thrown when no feasible solution exists for the given Sudoku grid.</exception>
         public SudokuGrid Solve(SudokuGrid s)
         {
-            // Extract the initial grid
             int[,] grid = s.Cells;
 
-            // Create a Constraint Programming Model (SAT) instance.
             CpModel model = new CpModel();
-
-            // Initialize variables
             IntVar[,] matrix = InitVariables(model, grid);
-
-            // Add constraints
             CreateConstraints(model, matrix);
-            
-            // Create a solver instance and solve the model
+
+             // Parallelize solving
             CpSolver solver = new CpSolver();
+            solver.StringParameters = $"max_time_in_seconds:10.0;num_search_workers:{Environment.ProcessorCount}";
+
             CpSolverStatus status = solver.Solve(model);
 
-            // If the solution is optimal or feasible, build the solved Sudoku grid
             if (status == CpSolverStatus.Optimal || status == CpSolverStatus.Feasible)
             {
-                string solvedString = BuildSolvedString(solver, matrix);
-                return SudokuGrid.ReadSudoku(solvedString);
+                UpdateSudokuGrid(grid, solver, matrix);
+                return s;
             }
 
             // If the Sudoku is unsolvable, throw an exception
@@ -49,10 +34,8 @@ namespace Sudoku.ORTools
 
         private static IntVar[,] InitVariables(CpModel model, int[,] grid)
         {
-            // Create solver matrix with constraints for size
             IntVar[,] matrix = new IntVar[gridSize, gridSize];
 
-            // Iterate through the grid to create variables and constant constraints
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
@@ -73,14 +56,12 @@ namespace Sudoku.ORTools
 
         private static void CreateConstraints(CpModel model, IntVar[,] matrix)
         {
-            // Add row and column constraints ensuring each number appears only once
             for (int i = 0; i < gridSize; i++)
             {
                 model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select matrix[i, j]).ToArray());
                 model.AddAllDifferent((from j in Enumerable.Range(0, gridSize) select matrix[j, i]).ToArray());
             }
 
-            // Add region constraints ensuring each number appears only once in each sub-grid
             for (int row = 0; row < gridSize; row += regionSize)
             {
                 for (int col = 0; col < gridSize; col += regionSize)
@@ -95,21 +76,15 @@ namespace Sudoku.ORTools
             }
         }
 
-        /// <summary>
-        /// Builds the Sudoku grid with the solved values.
-        /// </summary>
-        private static string BuildSolvedString(CpSolver solver, IntVar[,] matrix)
+        private static void UpdateSudokuGrid(int[,] grid, CpSolver solver, IntVar[,] matrix)
         {
-            // Create String from solver value
-            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    sb.Append((int)solver.Value(matrix[i, j]));
+                    grid[i, j] = (int)solver.Value(matrix[i, j]);
                 }
             }
-            return sb.ToString();
         }
     }
 }

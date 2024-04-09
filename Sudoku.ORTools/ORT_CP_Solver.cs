@@ -41,10 +41,9 @@ namespace Sudoku.ORTools
             while (solver.NextSolution())
             {
                 // Build the solved Sudoku string
-                string solvedString = BuildSolvedString(matrix);
+                UpdateSudokuGrid(s.Cells,matrix);
                 solver.EndSearch();
-
-                return SudokuGrid.ReadSudoku(solvedString);
+                return s;
             }
 
             // If the Sudoku is unsolvable, throw an exception
@@ -98,17 +97,15 @@ namespace Sudoku.ORTools
         /// <summary>
         /// Builds the Sudoku grid with the solved values.
         /// </summary>
-        private static string BuildSolvedString(IntVar[,] matrix)
+        private static void UpdateSudokuGrid(int[,] grid, IntVar[,] matrix)
         {
-            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    sb.Append((int)matrix[i, j].Value());
+                    grid[i, j] = (int)matrix[i, j].Value();
                 }
             }
-            return sb.ToString();
         }
     }
 }
