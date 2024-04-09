@@ -19,10 +19,10 @@ class SudokuSolver(nn.Module):
             self.l2 = BayesianLinear(self.hidden1,
                             n, bias=False)
         else:
-            self.l1 = nn.Linear(self.input_size,
-                                self.hidden1, bias=False)
-            self.l2 = nn.Linear(self.hidden1,
-                                n, bias=False)
+            self.l1 = nn.Linear(self.input_size, self.hidden1, bias=False)
+            self.l2 = nn.Linear(self.hidden1, int(self.hidden1 / 2), bias=False)
+            self.l3 = nn.Linear(int(self.hidden1/2), n, bias=False)
+        self.dropout = nn.Dropout(0.5)
         self.softmax = nn.Softmax(dim=1)
 
     # x is a (batch, n^2, n) tensor
@@ -41,8 +41,12 @@ class SudokuSolver(nn.Module):
 
             f = constraints.reshape(bts, n * n, 3 * n)
             y_ = self.l1(f[empty_mask])
-            y_ = self.l2(self.a1(y_))
-
+            y_ = self.a1(y_)
+            y_ = self.dropout(y_)
+            y_ = self.l2(y_)
+            y_ = self.a1(y_)
+            y_ = self.dropout(y_)
+            y_ = self.l3(y_)
             s_ = self.softmax(y_)
 
             # Score the rows
