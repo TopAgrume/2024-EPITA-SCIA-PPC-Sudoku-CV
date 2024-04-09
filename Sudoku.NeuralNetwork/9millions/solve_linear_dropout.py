@@ -4,7 +4,7 @@ import numpy as np
 
 
 def create_constraint_mask():
-    constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
+    constraint_mask = torch.zeros((81, 3, 81))
     # row constraints
     for a in range(81):
         r = 9 * (a // 9)
