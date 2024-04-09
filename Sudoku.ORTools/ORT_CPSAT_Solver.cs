@@ -33,8 +33,6 @@ namespace Sudoku.ORTools
 
             // Create a solver instance and solve the model
             CpSolver solver = new CpSolver();
-            solver.StringParameters = $"max_time_in_seconds:10.0;num_search_workers:{Environment.ProcessorCount}";
-
             CpSolverStatus status = solver.Solve(model);
 
             // If the solution is optimal or feasible, build the solved Sudoku grid
