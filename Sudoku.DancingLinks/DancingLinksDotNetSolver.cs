@@ -77,9 +77,9 @@ namespace Sudoku.DancingLinks
         /// </summary>
         private void InitializeMatrix()
         {
-            Parallel.For(0, size, x =>
+            for (int x = 0; x < size; x++)
             {
-                Parallel.For(0, size, y =>
+                for (int y = 0; y < size; y++)
                 {
                     int num = grid.Cells[x, y];
                     if (num == 0)
@@ -93,8 +93,8 @@ namespace Sudoku.DancingLinks
                     {
                         AddNode(x, y, num - 1);
                     }
-                });
-            });
+                }
+            }
         }
         
         /// <summary>
@@ -369,9 +369,9 @@ namespace Sudoku.DancingLinks
             return dancingLinksSolver.GetSolvedGrid();
             
             // Solve using parallel programming and DlxLib
-            // int[,] matrix = GenerateDlxMat(s);
-            // IEnumerable<Solution> solutions = new Dlx().Solve(matrix);
-            // return ConvertToSudokuGrid(solutions.First(), matrix);
+            int[,] matrix = GenerateDlxMat(s);
+            IEnumerable<Solution> solutions = new Dlx().Solve(matrix);
+            return ConvertToSudokuGrid(solutions.First(), matrix);
         }
         
         private int[,] GenerateDlxMat(SudokuGrid inputSudoku)
