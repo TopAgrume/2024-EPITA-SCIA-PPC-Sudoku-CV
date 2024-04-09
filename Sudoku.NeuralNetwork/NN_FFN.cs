@@ -8,7 +8,7 @@ using Python.Deployment;
 using Python.Runtime;
 namespace Sudoku.NeuralNetwork;
 
-public class NeuralNetSolver : PythonSolverBase
+public class NN_FFN : PythonSolverBase
 {
     public override SudokuGrid Solve(SudokuGrid s)
     {
@@ -29,7 +29,7 @@ public class NeuralNetSolver : PythonSolverBase
             scope.Set("instance", pyCells);
 
             // run the Python script
-            string code = Resources1.solve_linear_dropout_py;
+            string code = Resources1.solve_ffn_py;
             //Console.WriteLine(code);
             //Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             scope.Exec(code);
@@ -43,7 +43,7 @@ public class NeuralNetSolver : PythonSolverBase
 
             return new SudokuGrid() { Cells = managedResult };
         }
-
+        
         return s;
     }
 
