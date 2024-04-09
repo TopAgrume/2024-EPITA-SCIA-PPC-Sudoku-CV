@@ -30,7 +30,7 @@ class SudokuSolver:
                     confidence_position = where[prob[zero].argmax()]
                     confidence_value = value[confidence_position]
                     grid.flat[confidence_position] = confidence_value
-        return puzzles.squeeze().numpy().astype(np.int32)  # Convertir en tableau numpy
+        return puzzles.squeeze().astype(np.int32)  # Convertir en tableau numpy
 
 if 'instance' not in locals():
     instance = np.array([
