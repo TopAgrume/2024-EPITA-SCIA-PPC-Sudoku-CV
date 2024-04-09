@@ -87,7 +87,7 @@ class SudokuSolver(nn.Module):
             # fill it in
             nz = empty_mask.sum(dim=1).nonzero().view(-1)
             mmax_ = mmax[nz]
-            ones = torch.ones(nz.shape[0]).cuda()
+            ones = torch.ones(nz.shape[0])
             x.index_put_((nz, mmax_, score_pos[nz, mmax_]), ones)
         if return_orig:
             return x
@@ -111,7 +111,7 @@ if 'instance' not in locals():
 
 
 def one_hot_encode(s):
-    return np.eye(9)[s-1] * (s[:, None] > 0)
+    return torch.tensor(np.eye(9)[s-1] * (s[:, None] > 0), dtype=torch.float, device='cpu')
 
 def ff(s):
     return np.argmax(s , axis = 2) + 1
@@ -119,6 +119,6 @@ def ff(s):
 path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_final_drop.pth"
 model = SudokuSolver(create_constraint_mask())
 model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
-result = ff(model(torch.tensor(one_hot_encode(instance.flatten()), device='cpu').unsqueeze(0)).detach().numpy()).reshape(9,9)
+result = ff(model(one_hot_encode(instance.flatten()).unsqueeze(0)).detach().numpy()).reshape(9,9)
 result = result.astype(np.int32)
-#print(result)
+print(result)
