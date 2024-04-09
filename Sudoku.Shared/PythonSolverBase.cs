@@ -59,7 +59,7 @@ namespace Sudoku.Shared
 
 		private static async Task InstallPipModuleAsync(string moduleName, string version = "", bool force = false)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 await MacInstaller.PipInstallModule(moduleName, version, force);
             }
