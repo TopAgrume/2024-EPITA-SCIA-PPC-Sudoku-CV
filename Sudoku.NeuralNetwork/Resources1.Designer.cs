@@ -60,6 +60,32 @@ namespace Sudoku.NeuralNetwork {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to import os
+        ///
+        ///import numpy as np
+        ///from keras import models, utils
+        ///
+        ///
+        ///class SudokuSolver:
+        ///    def __init__(self, model_path):
+        ///        self.model = self.load_model(model_path)
+        ///
+        ///    def load_model(self, model_path):
+        ///        return models.load_model(model_path)
+        ///
+        ///    def __call__(self, puzzles):
+        ///        puzzles = puzzles.copy()
+        ///        for _ in range((puzzles == 0).sum((1, 2)).max()):
+        ///            model_preds = self.model.predict(
+        ///                utils.to_categorical(puzzles, num_classes=10), verbose= [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string solve_ffn_py {
+            get {
+                return ResourceManager.GetString("solve_ffn.py", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to import torch
         ///import torch.nn as nn
         ///import numpy as np
@@ -83,9 +109,39 @@ namespace Sudoku.NeuralNetwork {
         ///    for a in range(81):
         ///      [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string main_py {
+        internal static string solve_linear_dropout_py {
             get {
-                return ResourceManager.GetString("main.py", resourceCulture);
+                return ResourceManager.GetString("solve_linear_dropout.py", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to import torch
+        ///import torch.nn as nn
+        ///import numpy as np
+        ///
+        ///
+        ///def create_constraint_mask():
+        ///    constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
+        ///    # row constraints
+        ///    for a in range(81):
+        ///        r = 9 * (a // 9)
+        ///        for b in range(9):
+        ///            constraint_mask[a, 0, r + b] = 1
+        ///
+        ///    # column constraints
+        ///    for a in range(81):
+        ///        c = a % 9
+        ///        for b in range(9):
+        ///            constraint_mask[a, 1, c + 9 * b] = 1
+        ///
+        ///    # box constraints
+        ///    for a in range(81):
+        ///      [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string solve_linear_py {
+            get {
+                return ResourceManager.GetString("solve_linear.py", resourceCulture);
             }
         }
     }

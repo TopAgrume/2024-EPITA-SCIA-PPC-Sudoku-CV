@@ -29,7 +29,7 @@ public class NeuralNetSolver : PythonSolverBase
             scope.Set("instance", pyCells);
 
             // run the Python script
-            string code = Resources1.main_py;
+            string code = Resources1.solve_ffn_py;
             //Console.WriteLine(code);
             //Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             scope.Exec(code);
@@ -51,6 +51,9 @@ public class NeuralNetSolver : PythonSolverBase
     {
         InstallPipModule("numpy");
         InstallPipModule("torch");
+        InstallPipModule("keras");
+        InstallPipModule("tensorflow");
+        InstallPipModule("pandas");
         
         base.InitializePythonComponents();
     }

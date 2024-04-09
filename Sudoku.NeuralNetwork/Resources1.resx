@@ -118,8 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="main.py" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>9millions\main.py;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="solve_linear.py" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>9millions\solve_linear.py;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <comment/>
+  </data>
+  <data name="solve_ffn.py" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>FeedForwardNeuralNetwork\solve_ffn.py;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <comment/>
+  </data>
+  <data name="solve_linear_dropout.py" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>9millions\solve_linear_dropout.py;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
     <comment/>
   </data>
 </root>

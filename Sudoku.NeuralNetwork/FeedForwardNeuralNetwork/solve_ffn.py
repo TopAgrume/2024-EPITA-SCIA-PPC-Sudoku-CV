@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 from keras import models, utils
-import pandas as pd
 
 
 class SudokuSolver:
@@ -31,7 +30,7 @@ class SudokuSolver:
                     confidence_position = where[prob[zero].argmax()]
                     confidence_value = value[confidence_position]
                     grid.flat[confidence_position] = confidence_value
-        return puzzles.squeeze()  # Convertir en tableau numpy
+        return puzzles.squeeze().numpy().astype(np.int32)  # Convertir en tableau numpy
 
 if 'instance' not in locals():
     instance = np.array([
@@ -48,7 +47,6 @@ if 'instance' not in locals():
 
 
 
-solver = SudokuSolver("model.keras")
+solver = SudokuSolver("..\..\..\..\Sudoku.NeuralNetwork\FeedForwardNeuralNetwork\model.keras")
 puzzle = instance[np.newaxis, ...]
-solution = solver(puzzle)
-print(np.array(solution))
+result = solver(puzzle)
