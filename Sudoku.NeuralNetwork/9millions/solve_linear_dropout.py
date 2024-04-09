@@ -31,7 +31,7 @@ def create_constraint_mask():
     return constraint_mask
 
 class SudokuSolver(nn.Module):
-    def __init__(self, constraint_mask, n=9, hidden1=128, bayesian=False):
+    def __init__(self, constraint_mask, n=9, hidden1=256, bayesian=False):
         super(SudokuSolver, self).__init__()
         self.constraint_mask = constraint_mask.unsqueeze(-1).unsqueeze(0)
         self.n = n
