@@ -24,7 +24,7 @@ def train(dataset):
 
     constraint_mask = create_constraint_mask().cuda()
     criterion = nn.MSELoss()
-    sudoku_solver = SudokuSolver(constraint_mask,  bayesian=False).cuda()
+    sudoku_solver = SudokuSolver(constraint_mask, hidden1=256, bayesian=False).cuda()
 
     optimizer = optim.Adam(sudoku_solver.parameters(), lr=0.001)
 
@@ -35,6 +35,7 @@ def train(dataset):
     eval_border = int(len(trainloader) * 0.9)
     logger.debug(f"nombre d'iteration {eval_border}")
     iterations = 0
+    save = []
     for e in range(epochs):
         sudoku_solver.train()
         logger.debug(f"debut train epoch {iterations}")
@@ -60,8 +61,8 @@ def train(dataset):
                 loss_val.append(evaluate_regression(sudoku_solver, x, y).sum().item())
 
         logger.debug(f"epoch #{e} {iterations} iterations val - {loss_val[-1]}")
-        torch.save(sudoku_solver.state_dict(), f"model_save/model_epochs_{e}.pth")
-    torch.save(sudoku_solver.state_dict(), "model_save/model_final.pth")
+        torch.save(sudoku_solver.state_dict(), f"model_save/model_epochs_drop_{e}.pth")
+    torch.save(sudoku_solver.state_dict(), "model_save/model_final_drop.pth")
 
 
 
@@ -69,5 +70,6 @@ def train(dataset):
 
 
 if __name__ == '__main__':
+    logger.add("log/dropout.log")
     logger.debug("start main")
     train(r'D:\epita\ubuntu\SCIA-1\programmationParContrainte\datasets_sudoku\sudoku.csv')

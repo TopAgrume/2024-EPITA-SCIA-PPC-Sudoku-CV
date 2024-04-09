@@ -1,7 +1,34 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
-from base_bayesion_module import *
+
+def create_constraint_mask():
+    constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
+    # row constraints
+    for a in range(81):
+        r = 9 * (a // 9)
+        for b in range(9):
+            constraint_mask[a, 0, r + b] = 1
+
+    # column constraints
+    for a in range(81):
+        c = a % 9
+        for b in range(9):
+            constraint_mask[a, 1, c + 9 * b] = 1
+
+    # box constraints
+    for a in range(81):
+        r = a // 9
+        c = a % 9
+        br = 3 * 9 * (r // 3)
+        bc = 3 * (c // 3)
+        for b in range(9):
+            r = b % 3
+            c = 9 * (b // 3)
+            constraint_mask[a, 2, br + bc + r + c] = 1
+
+    return constraint_mask
 
 class SudokuSolver(nn.Module):
     def __init__(self, constraint_mask, n=9, hidden1=128, bayesian=False):
@@ -66,3 +93,32 @@ class SudokuSolver(nn.Module):
             return x
         else:
             return x_pred
+
+
+
+if 'instance' not in locals():
+    instance = np.array([
+        [0,0,0,0,9,4,0,3,0],
+        [0,0,0,5,1,0,0,0,7],
+        [0,8,9,0,0,0,0,4,0],
+        [0,0,0,0,0,0,2,0,8],
+        [0,6,0,2,0,1,0,5,0],
+        [1,0,2,0,0,0,0,0,0],
+        [0,7,0,0,0,0,5,2,0],
+        [9,0,0,0,6,5,0,0,0],
+        [0,4,0,9,7,0,0,0,0]
+    ], dtype=int)
+
+
+def one_hot_encode(s):
+    return np.eye(9)[s-1] * (s[:, None] > 0)
+
+def ff(s):
+    return np.argmax(s , axis = 2) + 1
+
+path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_epoch_3.pth"
+model = SudokuSolver()
+model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+result = ff(model(torch.tensor(one_hot_encode(instance.flatten()).unsqueeze(0), device='cpu')).detach().numpy()).reshape(9,9)
+result = result.astype(np.int32)
+#print(result)

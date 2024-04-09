@@ -3,6 +3,7 @@ import numpy as np
 import torch
 
 
+
 def create_constraint_mask():
     constraint_mask = torch.zeros((81, 3, 81), dtype=torch.float)
     # row constraints
