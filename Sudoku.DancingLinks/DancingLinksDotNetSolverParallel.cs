@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Sudoku.Shared;
 
 namespace Sudoku.DancingLinks
@@ -272,12 +273,118 @@ namespace Sudoku.DancingLinks
 
             return rowNodes;
         }
+        
+        public bool ParallelSearch()
+        {
+            if (head.Right == head)
+            {
+                return true;
+            }
 
+            var column = ChooseColumnNode();
+            Cover(column);
+
+            bool solutionFound = false;
+
+            // Use a ConcurrentStack to store partial solutions
+            ConcurrentStack<Node> partialSolutions = new ConcurrentStack<Node>();
+
+            Parallel.ForEach(GetRowNodes(column), (r, state) =>
+            {
+                
+                Stack<Node> localSolution = new Stack<Node>();
+                localSolution.Push(r);
+                
+                for (Node j = r.Right; j != r; j = j.Right)
+                {
+                    Cover(j.Column);
+                }
+                
+                if (ParallelSearchRecursive(localSolution))
+                {
+                    solutionFound = true;
+                    state.Stop(); 
+                }
+                
+                if (!solutionFound)
+                {
+                    foreach (Node j in localSolution)
+                    {
+                        Uncover(j.Column);
+                    }
+                }
+            });
+
+            if (!solutionFound)
+            {
+                Uncover(column);
+            }
+
+            return solutionFound;
+        }
+        
+        private bool ParallelSearchRecursive(Stack<Node> localSolution)
+        {
+           
+            if (head.Right == head)
+            {
+                lock (solution)
+                {
+                    // Update the global solution with the local solution
+                    while (localSolution.Count > 0)
+                    {
+                        solution.Push(localSolution.Pop());
+                    }
+                }
+                return true;
+            }
+            
+            var column = ChooseColumnNode();
+            
+            Cover(column);
+
+            bool solutionFound = false;
+            
+            foreach (Node r in GetRowNodes(column))
+            {
+                
+                if (!localSolution.Contains(r))
+                {
+                    
+                    localSolution.Push(r);
+                    
+                    for (Node j = r.Right; j != r; j = j.Right)
+                    {
+                        Cover(j.Column);
+                    }
+                    
+                    solutionFound = ParallelSearchRecursive(localSolution);
+                    
+                    if (solutionFound)
+                    {
+                        break;
+                    }
+                    
+                    localSolution.Pop();
+                    
+                    for (Node j = r.Left; j != r; j = j.Left)
+                    {
+                        Uncover(j.Column);
+                    }
+                }
+            }
+            
+            Uncover(column);
+
+            return solutionFound;
+        }
+
+        
         /// <summary>
         /// Searches for a solution with parallel programming.
         /// </summary>
         /// <returns></returns>
-        public bool ParallelSearch()
+        public bool ParallelSearchFVersion()
         {
             if (head.Right == head)
             {
@@ -303,8 +410,8 @@ namespace Sudoku.DancingLinks
 
                 if (!solutionFound && ParallelSearch())
                 {
-                    state.Break();
                     solutionFound = true;
+                    state.Stop();
                 }
 
                 if (!solutionFound)
