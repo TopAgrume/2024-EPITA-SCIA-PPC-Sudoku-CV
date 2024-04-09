@@ -24,10 +24,10 @@ namespace Sudoku.ORTools
 
             // Create a Linear Solver instance
             Solver solver = new Solver("SudokuSolver", Solver.OptimizationProblemType.BOP_INTEGER_PROGRAMMING);
-            
+
             // Setup decision variables and constraints
             var tensor = SetupTensor(solver, grid);
-            CreateConstraints(solver, tensor);
+            CreateConstraints(solver, tensor, grid);
 
             Solver.ResultStatus status = solver.Solve();
             if (status != Solver.ResultStatus.OPTIMAL)
@@ -50,24 +50,23 @@ namespace Sudoku.ORTools
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    // Create binary decision variables
+                    if (grid[i, j] != 0)
+                    {
+                        tensor[i, j, grid[i, j] - 1] = solver.MakeIntVar(1, 1, $"tensor[{i},{j},{grid[i, j] - 1}]");
+                        continue;
+                    }
+                    
                     for (int k = 0; k < gridSize; k++)
                     {
                         tensor[i, j, k] = solver.MakeIntVar(0, 1, $"tensor[{i},{j},{k}]");
                     }
-
-                    if (grid[i, j] == 0)
-                        continue;
-
-                    // If the cell has an initial value, set the corresponding variable to 1
-                    solver.Add(tensor[i, j, grid[i, j] - 1] == 1);
                 }
             }
 
             return tensor;
         }
 
-        private static void CreateConstraints(Solver solver, Variable[,,] tensor)
+        private static void CreateConstraints(Solver solver, Variable[,,] tensor, int[,] grid)
         {
             // Add exactly one value per cell
             // Add constraints for each row and column
@@ -75,13 +74,20 @@ namespace Sudoku.ORTools
             {
                 for (int k = 0; k < gridSize; k++)
                 {
-                    Constraint oneValuePerCell = solver.MakeConstraint(1, 1, "");
+                    if (grid[i, k] == 0)
+                    {
+                        Constraint oneValuePerCell = solver.MakeConstraint(1, 1, "");
+                        for (int j = 0; j < gridSize; j++)
+                        {
+                            oneValuePerCell.SetCoefficient(tensor[i, k, j], 1);
+                        }
+                    }
+
                     Constraint rowConstraint = solver.MakeConstraint(1, 1, "");
                     Constraint colConstraint = solver.MakeConstraint(1, 1, "");
                     
                     for (int j = 0; j < gridSize; j++)
                     {
-                        oneValuePerCell.SetCoefficient(tensor[i, k, j], 1);
                         rowConstraint.SetCoefficient(tensor[i, j, k], 1);
                         colConstraint.SetCoefficient(tensor[j, i, k], 1);
                     }
@@ -113,19 +119,20 @@ namespace Sudoku.ORTools
         /// </summary>
         private static void UpdateSudokuGrid(Variable[,,] tensor, int[,] grid, SudokuGrid s)
         {
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     if (grid[i, j] != 0)
                         continue;
                     
-                    for (int k = 0; k < 9; k++)
+                    for (int k = 0; k < gridSize; k++)
                     {
-                        if (tensor[i, j, k].SolutionValue() != 1)
-                            continue;
-
-                        s.Cells[i, j] = k + 1;
+                        if (tensor[i, j, k].SolutionValue() == 1)
+                        {
+                            s.Cells[i, j] = k + 1;
+                            break;
+                        }
                     }
                 }
             }

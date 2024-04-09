@@ -114,7 +114,7 @@ namespace Sudoku.OrTools
                 {
                     for (int jnext = j + 1; jnext < gridSize; jnext++)
                     {
-                        for (int k = 0; k < 9; k++)
+                        for (int k = 0; k < gridSize; k++)
                         {
                             // Constraints for rows: not([i, j, k] and [inext, j, k])
                             model.AddBoolOr([tensor[j, i, k].Not(), tensor[jnext, i, k].Not()]);
@@ -149,7 +149,7 @@ namespace Sudoku.OrTools
                                     int jsecond = j + regionNextColumns;
 
                                     // Constraints for regions: not([ifirst, jfirst, k] and [isecond, jsecond, k])
-                                    for (int k = 0; k < 9; k++)
+                                    for (int k = 0; k < gridSize; k++)
                                     {
                                         model.AddBoolOr([
                                             tensor[ifirst, jfirst, k].Not(),
@@ -169,14 +169,14 @@ namespace Sudoku.OrTools
         /// </summary>
         private static void UpdateSudokuGrid(CpSolver solver, BoolVar[,,] tensor, int[,] grid, SudokuGrid s)
         {
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     if (grid[i, j] != 0)
                         continue;
                     
-                    for (int k = 0; k < 9; k++)
+                    for (int k = 0; k < gridSize; k++)
                     {
                         if (solver.Value(tensor[i, j, k]) != 0)
                         {
