@@ -12,7 +12,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", type=str, default="ffn", help="the type of model to train")
     parser.add_argument("--num-delete", type=int, default=-1, help="the number of digits to delete")
     parser.add_argument("--epochs", type=int, default=100, help="the number of epochs to train")
-    parser.add_argument("--batch-size", type=int, default=65536, help="the batch size to train")
+    parser.add_argument("--batch-size", type=int, default=4096, help="the batch size to train")
     parser.add_argument("--resume", action="store_true", help="resume training from the model file")
     args = parser.parse_args()
 

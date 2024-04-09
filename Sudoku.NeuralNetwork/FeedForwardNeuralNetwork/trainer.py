@@ -161,7 +161,9 @@ class SudokuNetTrainer:
             f"[Model type: {args.model_type}] [Number of digits to delete: {args.num_delete}] [Epochs: {args.epochs}] [Batch size: {args.batch_size}]"
         )
         train_dataset = Dataset.from_parquet(args.train)
+        train_dataset = Dataset.from_dict(train_dataset[:800000])
         valid_dataset = Dataset.from_parquet(args.valid)
+        valid_dataset = Dataset.from_dict(valid_dataset[:200000])
         model = self.load_model(args.model_load)
         assets = self.train(model, train_dataset, valid_dataset, args)
         assets["metrics"] = self.evaluate(assets["model"], valid_dataset)
@@ -175,7 +177,7 @@ class SudokuDataGenerator(utils.Sequence):
         self.batch_size = batch_size
 
     def __len__(self):
-        return int(np.ceil(len(self.dataset) / float(self.batch_size)))
+        return int(np.ceil(len(self.dataset) / float(self.batch_size))) 
 
     def __getitem__(self, idx):
         batch = self.dataset[idx * self.batch_size : (idx + 1) * self.batch_size]
