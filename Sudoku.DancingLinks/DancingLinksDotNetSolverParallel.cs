@@ -1,8 +1,8 @@
-﻿using Sudoku.Shared;
+using Sudoku.Shared;
 
 namespace Sudoku.DancingLinks
 {
-    public class DancingLinksSolver
+    public class DancingLinksSolverParallel
     {
         private readonly ColumnNode head;
         private readonly SudokuGrid grid;
@@ -10,16 +10,16 @@ namespace Sudoku.DancingLinks
         private ColumnNode[] columns;
         private readonly Stack<Node> solution = new Stack<Node>();
 
-        public DancingLinksSolver(SudokuGrid grid)
+        public DancingLinksSolverParallel(SudokuGrid grid)
         {
             this.grid = grid;
             this.size = grid.Cells.GetLength(0);
             this.head = new ColumnNode();
-            
+
             InitializeColumnNodes();
             InitializeMatrix();
         }
-        
+
         /// <summary>
         /// Represents a node in the matrix for the Dancing Links algorithm.
         /// </summary>
@@ -37,20 +37,20 @@ namespace Sudoku.DancingLinks
                 Down = this;
             }
         }
-        
+
         /// <summary>
         /// Represents a column node in the matrix.
         /// </summary>
         private class ColumnNode : Node
         {
             public int Size; // Number of nodes in the column.
-
+            
             public ColumnNode()
             {
                 this.Size = 0;
             }
         }
-        
+
         /// <summary>
         /// Initializes the column nodes.
         /// </summary>
@@ -66,9 +66,10 @@ namespace Sudoku.DancingLinks
                 head.Left = columnNode;
                 columnNodes[col] = columnNode;
             }
+
             columns = columnNodes;
         }
-        
+
         /// <summary>
         /// Initializes the matrix from the given Sudoku grid.
         /// </summary>
@@ -93,7 +94,7 @@ namespace Sudoku.DancingLinks
                 }
             }
         }
-        
+
         /// <summary>
         /// Adds a node to the matrix representing a possible value for a cell.
         /// </summary>
@@ -104,7 +105,7 @@ namespace Sudoku.DancingLinks
         {
             // Calculate the constraint indices
             var posConstraint = x * size + y;
-            var rowConstraint = size * size + x * size + num ;
+            var rowConstraint = size * size + x * size + num;
             var colConstraint = 2 * size * size + y * size + num;
             var boxConstraint = 3 * size * size + (x / 3 * 3 + y / 3) * size + num;
 
@@ -112,14 +113,14 @@ namespace Sudoku.DancingLinks
             Node row = new Node { Column = columns[rowConstraint], RowIndex = x * size * size + y * size + num };
             Node col = new Node { Column = columns[colConstraint], RowIndex = x * size * size + y * size + num };
             Node box = new Node { Column = columns[boxConstraint], RowIndex = x * size * size + y * size + num };
-            
+
             LinkRows(pos, row, col, box);
             LinkNodes(pos);
             LinkNodes(row);
             LinkNodes(col);
             LinkNodes(box);
         }
-        
+
         /// <summary>
         /// Links the rows of the nodes.
         /// </summary>
@@ -138,7 +139,7 @@ namespace Sudoku.DancingLinks
             c.Left = b;
             b.Left = a;
         }
-        
+
         /// <summary>
         /// Links the nodes vertically in the matrix.
         /// </summary>
@@ -152,7 +153,7 @@ namespace Sudoku.DancingLinks
             c.Up.Down = node;
             c.Up = node;
         }
-        
+
         /// <summary>
         /// Covers the column specified.
         /// </summary>
@@ -171,7 +172,7 @@ namespace Sudoku.DancingLinks
                 }
             }
         }
-        
+
         /// <summary>
         /// Uncovers the column specified.
         /// </summary>
@@ -187,10 +188,11 @@ namespace Sudoku.DancingLinks
                     j.Column.Size++;
                 }
             }
+
             column.Right.Left = column;
             column.Left.Right = column;
         }
-        
+
         /// <summary>
         /// Chooses a column node.
         /// </summary>
@@ -207,11 +209,13 @@ namespace Sudoku.DancingLinks
                     size = current.Size;
                     chosenColumn = current;
                 }
+
                 current = (ColumnNode)current.Right;
             }
+
             return chosenColumn;
         }
-        
+
         /// <summary>
         /// Searches for a solution recursively using backtracking.
         /// </summary>
@@ -252,8 +256,80 @@ namespace Sudoku.DancingLinks
             Uncover(column);
             return false;
         }
-        
+
         /// <summary>
+        /// Gets the row nodes.
+        /// </summary>
+        /// <param name="columnNode"></param>
+        /// <returns></returns>
+        private List<Node> GetRowNodes(ColumnNode columnNode)
+        {
+            List<Node> rowNodes = new List<Node>();
+            for (Node i = columnNode.Down; i != columnNode; i = i.Down)
+            {
+                rowNodes.Add(i);
+            }
+
+            return rowNodes;
+        }
+
+        /// <summary>
+        /// Searches for a solution with parallel programming.
+        /// </summary>
+        /// <returns></returns>
+        public bool ParallelSearch()
+        {
+            if (head.Right == head)
+            {
+                return true;
+            }
+
+            var column = ChooseColumnNode();
+            Cover(column);
+
+            bool solutionFound = false;
+
+            Parallel.ForEach(GetRowNodes(column), (r, state) =>
+            {
+                lock (solution)
+                {
+                    solution.Push(r);
+                }
+
+                for (Node j = r.Right; j != r; j = j.Right)
+                {
+                    Cover(j.Column);
+                }
+
+                if (!solutionFound && ParallelSearch())
+                {
+                    state.Break();
+                    solutionFound = true;
+                }
+
+                if (!solutionFound)
+                {
+                    lock (solution)
+                    {
+                        solution.Pop();
+                    }
+
+                    column = r.Column;
+                    for (Node j = r.Left; j != r; j = j.Left)
+                    {
+                        Uncover(j.Column);
+                    }
+                }
+            });
+
+            if (!solutionFound)
+            {
+                Uncover(column);
+            }
+
+            return solutionFound;
+        }
+        // <summary>
         /// Gets the solved grid.
         /// </summary>
         /// <returns>
@@ -274,10 +350,10 @@ namespace Sudoku.DancingLinks
         }
     }
 
-    public class DancingLinksDotNetSolver : ISudokuSolver
+    public class DancingLinksDotNetSolverParallel : ISudokuSolver
     {
         /// <summary>
-        /// Solves the given Sudoku grid using a dancing links algorithm.
+        /// Solves the given Sudoku grid using a dancing links algorithm with parallel programming.
         /// </summary>
         /// <param name="s">The Sudoku grid to be solved.</param>
         /// <returns>
@@ -286,12 +362,11 @@ namespace Sudoku.DancingLinks
         public SudokuGrid Solve(SudokuGrid s)
         {
             // Solve using dancing links solver
-            DancingLinksSolver dancingLinksSolver = new DancingLinksSolver(s);
-            // Solve with not parallele programming
-            dancingLinksSolver.Search();
+            DancingLinksSolverParallel dancingLinksSolver = new DancingLinksSolverParallel(s);
             // Solve with parallel programming (does not work for hard sudokus)
-            // dancingLinksSolver.ParallelSearch();
+            dancingLinksSolver.ParallelSearch();
             return dancingLinksSolver.GetSolvedGrid();
         }
     }
 }
+
