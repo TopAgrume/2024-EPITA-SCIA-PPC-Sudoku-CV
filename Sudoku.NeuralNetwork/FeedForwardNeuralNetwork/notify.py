@@ -7,7 +7,11 @@ class SandeshLogger:
     def __init__(self, name, disable=False, log_file="../training.log"):
         self.name = name
         self.logger = self.setup_logger(name, log_file)
-        self.webhook = open("../../webhook.txt", "r").read().strip()
+        try:
+            self.webhook = open("../../webhook.txt", "r").read().strip()
+        except FileNotFoundError:
+            self.webhook = None
+            print("Warning: webhook.txt not found. Skipping webhook initialization.")
         self.disable = disable
 
     def setup_logger(self, name, log_file="../training.log"):
