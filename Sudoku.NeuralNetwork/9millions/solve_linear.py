@@ -105,7 +105,7 @@ if 'instance' not in locals():
 
 
 def one_hot_encode(s):
-    return np.eye(9)[s-1] * (s[:, None] > 0)
+    return torch.tensor(np.eye(9)[s-1] * (s[:, None] > 0), dtype=torch.float, device='cpu')
 
 def ff(s):
     return np.argmax(s , axis = 2) + 1
@@ -113,6 +113,6 @@ def ff(s):
 path = r"..\..\..\..\Sudoku.NeuralNetwork\9millions\model_save\model_epoch_3.pth"
 model = SudokuSolver()
 model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
-result = ff(model(torch.tensor(one_hot_encode(instance.flatten()).unsqueeze(0), device='cpu')).detach().numpy()).reshape(9,9)
+result = ff(model(one_hot_encode(instance.flatten()).unsqueeze(0)).detach().numpy()).reshape(9,9)
 result = result.astype(np.int32)
 #print(result)
