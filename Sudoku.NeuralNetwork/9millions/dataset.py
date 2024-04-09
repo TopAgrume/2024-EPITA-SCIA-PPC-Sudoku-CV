@@ -28,7 +28,5 @@ class SudokuDataset(Dataset):
         return sample
     
 def one_hot_encode(s):
-    zeros = torch.zeros((81, 9), dtype=torch.float)
-    for a in range(81):
-        zeros[a, int(s[a]) - 1] = 1 if int(s[a]) > 0 else 0
-    return zeros
+    s = np.array([int(char) for char in s]) - 0 
+    return torch.tensor(np.eye(9)[s-1] * (s[:, None] > 0), dtype=torch.float)

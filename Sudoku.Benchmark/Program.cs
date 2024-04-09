@@ -16,9 +16,9 @@ namespace Sudoku.Benchmark
     {
 
 #if DEBUG
-        private static bool IsDebug = true;
+		public static bool IsDebug = true;
 #else
-        private static bool IsDebug = false;
+        public static bool IsDebug = false;
 #endif
 
 	    static IConfiguration Configuration;
@@ -46,6 +46,9 @@ namespace Sudoku.Benchmark
 			else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
 			{
 				pythonConfig = Configuration.GetSection("PythonConfig:Linux").Get<PythonConfiguration>();
+                //LinuxInstaller.InstallPath = "/root/.pyenv/versions/3.10.5";
+                //LinuxInstaller.PythonDirectoryName = "/root/.pyenv/versions/3.10.5/bin";
+                //LinuxInstaller.LibFileName = "/root/.pyenv/versions/3.10.5/lib/libpython3.10.so";
 			}
 
 			if (pythonConfig != null)
