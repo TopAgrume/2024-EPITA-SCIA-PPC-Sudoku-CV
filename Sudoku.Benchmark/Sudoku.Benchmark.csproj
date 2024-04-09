@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Sudoku.Backtracking\Sudoku.Backtracking.csproj" />
     <ProjectReference Include="..\Sudoku.Shared\Sudoku.Shared.csproj" />
     <ProjectReference Include="..\Sudoku.ORTools\Sudoku.ORTools.csproj" />
+    <ProjectReference Include="..\Sudoku.Genetic\Sudoku.Genetic.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
