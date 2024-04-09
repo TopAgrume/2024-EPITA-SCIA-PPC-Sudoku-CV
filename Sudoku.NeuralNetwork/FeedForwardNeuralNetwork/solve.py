@@ -3,7 +3,6 @@ import os
 import numpy as np
 from keras import models, utils
 import pandas as pd
-from huggingface_hub import hf_hub_download
 
 
 class SudokuSolver:
